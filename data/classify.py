@@ -8,14 +8,14 @@ import nltk
 import codecs
 
 
-def preprocess(text, stopwordlist):
+def preprocess(text):
 	# do spelling correction
 
 	# remove punctuations and onvert to lowercase
 	text = re.split(r'\W+', text.lower())
 
 	# remove stopwords
-	text = [w for w in text if not w in stopwordlist]
+	# text = [w for w in text if not w in stopwordlist]
 	
 	# stemming
 	# stemmer = nltk.stem.porter.PorterStemmer()
@@ -40,14 +40,14 @@ groundtruths = [None] * len(test)
 for org in orgs:
     with open('TRAIN/%s.txt' % org) as f:
         for line in f:
-            train_texts.append(preprocess(json.loads(line)['text'], stopwordlist))
+            train_texts.append(json.loads(line)['text'])
             train_orgs.append(org)
     with open('TEST/Groundtruth_%s.txt' % org) as f:
         for i, line in enumerate(f):
             if line == '1\n':
                 groundtruths[i] = org
  
-vectorizer = CountVectorizer()
+vectorizer = CountVectorizer(preprocessor=preprocess, stop_words=stopwordlist)
 train_counts = vectorizer.fit_transform(train_texts)
 classifier = MultinomialNB()
 classifier.fit(train_counts, train_orgs)
