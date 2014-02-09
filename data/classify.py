@@ -5,6 +5,7 @@ from time import time
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn import metrics
 # from sklearn.naive_bayes import MultinomialNB
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
@@ -68,6 +69,7 @@ parameters = {
     # 'tfidf__use_idf': (True, False),
     # 'tfidf__norm': ('l1', 'l2'),
     'clf__class_weight': (None, 'auto'),
+    # 'clf__multi_class': ('ovr', 'crammer_singer'),
     # 'clf__C': (1.0, 2.0, 3.0, 4.0, 5.0),
     # 'clf__loss': ('l1', 'l2'),
     # 'clf__penalty': ('l1', 'l2'),
@@ -97,6 +99,9 @@ if __name__ == "__main__":
         print("\t%s: %r" % (param_name, best_parameters[param_name]))
     print("Best score with test set: %0.3f" % grid_search.score(test, groundtruths))
 
+    predicted = grid_search.predict(test)
+    print(metrics.classification_report(groundtruths, predicted))
+    print(metrics.confusion_matrix(groundtruths, predicted))
 
 # vectorizer = TfidfVectorizer(stop_words=stopwordlist)
 # train_counts = vectorizer.fit_transform(train_texts)
