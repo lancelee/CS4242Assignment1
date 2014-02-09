@@ -67,7 +67,10 @@ parameters = {
     # 'vect__stop_words': ('english', stopwordlist),
     # 'tfidf__use_idf': (True, False),
     # 'tfidf__norm': ('l1', 'l2'),
-    'clf__class_weight': (None, 'auto')
+    'clf__class_weight': (None, 'auto'),
+    # 'clf__C': (1.0, 2.0, 3.0, 4.0, 5.0),
+    # 'clf__loss': ('l1', 'l2'),
+    # 'clf__penalty': ('l1', 'l2'),
 }
 
 if __name__ == "__main__":
