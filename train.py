@@ -1,4 +1,5 @@
 import json
+import sys
 from textblob import TextBlob
 
 
@@ -52,3 +53,13 @@ for each tweet in one organization
 7) Store the terms in a vector ranked by their weights (feature1)
 8) Put the features for each tweet into the classifer to be trained
 This shall be sufficient for a basic classifier.
+"""
+
+# for tweet in DBS2_tweets:
+#	 print tweet['text'].encode(sys.stdout.encoding, errors='replace')
+
+"""
+Processing of a tweet text
+"""
+
+blob = TextBlob(DBS2_tweets[0]['text'])
