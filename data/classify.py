@@ -42,13 +42,41 @@ with open('stopwordlist.txt') as f:
 
 orgs = ['DBS1', 'DBS2', 'NUS1', 'NUS2', 'STARHUB']
 train_texts = []
+train_location = []
+train_timezone = []
 train_orgs = []
-test = [json.loads(line)['text'] for line in open('TEST/TEST_NEW.txt')]
-groundtruths = [None] * len(test)
+test_texts = []
+test_location = []
+test_timezone = []
+for line in open('TEST/TEST_NEW.txt'):
+    try:
+        test_texts.append(json.loads(line)['text'])
+    except:
+        test_texts.append(None)
+    try:
+        test_location.append(json.loads(line)['user']['location'])
+    except:
+        test_location.append(None)
+    try:
+        test_timezone.append(json.loads(line)['user']['time_zone'])
+    except:
+        test_timezone.append(None)            
+groundtruths = [None] * len(test_texts)
 for org in orgs:
     with open('TRAIN/%s.txt' % org) as f:
         for line in f:
-            train_texts.append(json.loads(line)['text'])
+            try:
+                train_texts.append(json.loads(line)['text'])                                
+            except: 
+                train_texts.append(None)
+            try:
+                train_location.append(json.loads(line)["user"]["location"])
+            except:    
+                train_location.append(None)
+            try:
+                train_timezone.append(json.loads(line)["user"]["time_zone"])
+            except:    
+                train_timezone.append(None)
             train_orgs.append(org)
     with open('TEST/Groundtruth_%s.txt' % org) as f:
         for i, line in enumerate(f):
@@ -88,6 +116,7 @@ if __name__ == "__main__":
     print("parameters:")
     pprint(parameters)
     t0 = time()
+    # training phase
     grid_search.fit(train_texts, train_orgs)
     print("done in %0.3fs" % (time() - t0))
     print()
@@ -97,9 +126,9 @@ if __name__ == "__main__":
     best_parameters = grid_search.best_estimator_.get_params()
     for param_name in sorted(parameters.keys()):
         print("\t%s: %r" % (param_name, best_parameters[param_name]))
-    print("Best score with test set: %0.3f" % grid_search.score(test, groundtruths))
-
-    predicted = grid_search.predict(test)
+    # testing classifer with testset and groundtruths
+    print("Best score with test set: %0.3f" % grid_search.score(test_texts, groundtruths))
+    predicted = grid_search.predict(test_texts)
     print(metrics.classification_report(groundtruths, predicted))
     print(metrics.confusion_matrix(groundtruths, predicted))
 
