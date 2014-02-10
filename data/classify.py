@@ -14,7 +14,7 @@ from sklearn.svm import LinearSVC
 import re
 # from textblob import TextBlob
 # import nltk
-# import codecs
+import codecs
 
 
 def preprocess(text):
@@ -131,6 +131,23 @@ if __name__ == "__main__":
     predicted = grid_search.predict(test_texts)
     print(metrics.classification_report(groundtruths, predicted))
     print(metrics.confusion_matrix(groundtruths, predicted))
+
+
+
+    # outputting wrong results
+    output = open("false_prediction.txt", "wb")
+
+    false_counts = 0
+    for x in range(len(groundtruths)):
+        if not predicted[x] == groundtruths[x]:
+            false_counts += 1
+            content = test_texts[x].encode('ascii', 'ignore')
+            output.write(content + "\r\n")
+            output.write("Predicted: " + predicted[x] + " Groundtruth: " + groundtruths[x] + "\r\n\r\n")
+
+    print "false counts = " + str(false_counts)  
+
+    output.close()  
 
 # vectorizer = TfidfVectorizer(stop_words=stopwordlist)
 # train_counts = vectorizer.fit_transform(train_texts)
