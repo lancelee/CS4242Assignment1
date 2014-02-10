@@ -17,6 +17,8 @@ import re
 import codecs
 
 
+
+
 def preprocess(text):
     # do spelling correction
 
@@ -32,6 +34,16 @@ def preprocess(text):
 
     return ' '.join(text)
 
+def preprocessLocationVector(train_location):
+    feat = []
+    # test
+    for line in train_location:
+        if not line is None:
+            feat.append(line.lower())
+        else:
+            feat.append("") 
+    return feat
+
 
 # loading stopwords
 stopwordlist = []
@@ -43,11 +55,9 @@ with open('stopwordlist.txt') as f:
 orgs = ['DBS1', 'DBS2', 'NUS1', 'NUS2', 'STARHUB']
 train_texts = []
 train_location = []
-train_timezone = []
 train_orgs = []
 test_texts = []
 test_location = []
-test_timezone = []
 for line in open('TEST/TEST_NEW.txt'):
     try:
         test_texts.append(json.loads(line)['text'])
@@ -56,11 +66,7 @@ for line in open('TEST/TEST_NEW.txt'):
     try:
         test_location.append(json.loads(line)['user']['location'])
     except:
-        test_location.append(None)
-    try:
-        test_timezone.append(json.loads(line)['user']['time_zone'])
-    except:
-        test_timezone.append(None)            
+        test_location.append(None)           
 groundtruths = [None] * len(test_texts)
 for org in orgs:
     with open('TRAIN/%s.txt' % org) as f:
@@ -69,14 +75,24 @@ for org in orgs:
                 train_texts.append(json.loads(line)['text'])                                
             except: 
                 train_texts.append(None)
+
+            # first get timezone, if timezone is None or '', get location
             try:
-                train_location.append(json.loads(line)["user"]["location"])
-            except:    
-                train_location.append(None)
-            try:
-                train_timezone.append(json.loads(line)["user"]["time_zone"])
-            except:    
-                train_timezone.append(None)
+                location = json.loads(line)["user"]["time_zone"]
+                if location == '':
+                    try:
+                        location = json.loads(line)["user"]["location"]
+                        train_location.append(location)
+                    except:
+                        train_location.append(None)
+                else:
+                    train_location.append(location)            
+            except:
+                try:
+                    location = json.loads(line)["user"]["location"]
+                    train_location.append(location)
+                except:
+                    train_location.append(None)
             train_orgs.append(org)
     with open('TEST/Groundtruth_%s.txt' % org) as f:
         for i, line in enumerate(f):
@@ -84,7 +100,7 @@ for org in orgs:
                 groundtruths[i] = org
 
 pipeline = Pipeline([
-    ('vect', CountVectorizer(max_df=0.5, stop_words=stopwordlist)),
+    ('vect', CountVectorizer(max_df=0.5, stop_words=stopwordlist, tokenizer=preprocessLocationVector)),
     ('tfidf', TfidfTransformer()),
     ('clf', LinearSVC()),
 ])
@@ -133,7 +149,7 @@ if __name__ == "__main__":
     print(metrics.confusion_matrix(groundtruths, predicted))
 
 
-
+    """
     # outputting wrong results
     output = open("false_prediction.txt", "wb")
 
@@ -148,7 +164,7 @@ if __name__ == "__main__":
     print "false counts = " + str(false_counts)  
 
     output.close()  
-
+    """
 # vectorizer = TfidfVectorizer(stop_words=stopwordlist)
 # train_counts = vectorizer.fit_transform(train_texts)
 # classifier = LinearSVC()
