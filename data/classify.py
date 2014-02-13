@@ -15,6 +15,7 @@ import re
 # from textblob import TextBlob
 # import nltk
 import codecs
+import sys
 
 
 
@@ -34,16 +35,16 @@ def preprocess(text):
 
     return ' '.join(text)
 
-def preprocessLocationVector(train_location):
+def preprocessFeature(feature, train_texts):
     feat = []
     # test
-    for line in train_location:
-        if not line is None:
-            feat.append(line.lower())
+    for x in range(len(train_texts)):
+        if feature[x] == None:
+            line = train_texts[x]
         else:
-            feat.append("") 
+            line = preprocess(feature[x]) + " " + train_texts[x]
+        feat.append(line.encode('ascii', errors='replace'))    
     return feat
-
 
 # loading stopwords
 stopwordlist = []
@@ -53,20 +54,56 @@ with open('stopwordlist.txt') as f:
         stopwordlist.append(word.rstrip())
 
 orgs = ['DBS1', 'DBS2', 'NUS1', 'NUS2', 'STARHUB']
-train_texts = []
-train_location = []
 train_orgs = []
+
+train_texts = []
 test_texts = []
+
+train_location = []
 test_location = []
+
+train_timezone = []
+test_timezone = []
+
+train_retweets = []
+test_retweets = []
+
+train_geoposition = []
+test_geoposition = []
+
+train_name = []
+test_name = []
+
+feat = []
+testfeat = []
+
 for line in open('TEST/TEST_NEW.txt'):
     try:
         test_texts.append(json.loads(line)['text'])
     except:
         test_texts.append(None)
     try:
-        test_location.append(json.loads(line)['user']['location'])
+        test_location.append(json.loads(line)["user"]["location"])
     except:
-        test_location.append(None)           
+        test_location.append(None)
+    try:
+        test_timezone.append(json.loads(line)["user"]["time_zone"])
+    except:
+        test_timezone.append(None)
+    try:
+        test_retweets.append(json.loads(line)["retweeted_status"]["text"])
+    except:
+        test_retweets.append(None)        
+    try:
+        test_geoposition.append(json.loads(line)["geoposition"])
+    except:
+        test_geoposition.append(None)
+    try:
+        test_name.append(json.loads(line)["user"]["name"])
+    except:
+        test_name.append(None)
+
+
 groundtruths = [None] * len(test_texts)
 for org in orgs:
     with open('TRAIN/%s.txt' % org) as f:
@@ -75,32 +112,53 @@ for org in orgs:
                 train_texts.append(json.loads(line)['text'])                                
             except: 
                 train_texts.append(None)
-
-            # first get timezone, if timezone is None or '', get location
             try:
-                location = json.loads(line)["user"]["time_zone"]
-                if location == '':
-                    try:
-                        location = json.loads(line)["user"]["location"]
-                        train_location.append(location)
-                    except:
-                        train_location.append(None)
-                else:
-                    train_location.append(location)            
+                train_location.append(json.loads(line)["user"]["location"])       
             except:
-                try:
-                    location = json.loads(line)["user"]["location"]
-                    train_location.append(location)
-                except:
-                    train_location.append(None)
+                train_location.append(None)
+            try:
+                train_timezone.append(json.loads(line)["user"]["time_zone"])
+            except:
+                train_timezone.append(None)
+            try:
+                train_retweets.append(json.loads(line)["retweeted_status"]["text"])
+            except:
+                train_retweets.append(None)
+            try:
+                train_geoposition.append(json.loads(line)["geoposition"])
+            except:
+                train_geoposition.append(None)
+            try:
+                train_name.append(json.loads(line)["user"]["name"])
+            except:
+                train_name.append(None)
+
             train_orgs.append(org)
     with open('TEST/Groundtruth_%s.txt' % org) as f:
         for i, line in enumerate(f):
             if line == '1\n':
                 groundtruths[i] = org
 
+
+# comment these 2 lines to turn off location feature
+#train_texts = preprocessFeature(train_location, train_texts)
+#test_texts = preprocessFeature(test_location, test_texts)
+
+#train_texts = preprocessFeature(train_timezone, train_texts)
+#test_texts = preprocessFeature(test_timezone, test_texts)
+
+#train_texts = preprocessFeature(train_retweets, train_texts)
+#test_texts = preprocessFeature(test_retweets, test_texts)
+
+#train_texts = preprocessFeature(train_geoposition, train_texts)
+#test_texts = preprocessFeature(test_geoposition, test_texts)
+
+#train_texts = preprocessFeature(train_name, train_texts)
+#test_texts = preprocessFeature(test_name, test_texts)
+
+
 pipeline = Pipeline([
-    ('vect', CountVectorizer(max_df=0.5, stop_words=stopwordlist, tokenizer=preprocessLocationVector)),
+    ('vect', CountVectorizer(max_df=0.5, stop_words=stopwordlist, lowercase=False)),
     ('tfidf', TfidfTransformer()),
     ('clf', LinearSVC()),
 ])
@@ -165,6 +223,7 @@ if __name__ == "__main__":
 
     output.close()  
     """
+
 # vectorizer = TfidfVectorizer(stop_words=stopwordlist)
 # train_counts = vectorizer.fit_transform(train_texts)
 # classifier = LinearSVC()
