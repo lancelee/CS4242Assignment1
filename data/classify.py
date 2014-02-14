@@ -210,6 +210,11 @@ for org in orgs:
 
 def tokenizer(doc):
     # print doc
+
+    # condense 3 or more than 3 letters into 1, e.g. hhhheeeello to hello
+    # seems to decrease accuracy slightly
+    # doc = re.compile(r'(\w)\1{2,}').sub(r'\1', doc)
+
     token_pattern = re.compile(r"(?u)[&\w]\w+")
     tokens = token_pattern.findall(doc)
     tokens = [token if token.lower() in ['dbs'] else token.lower() for token in tokens]
