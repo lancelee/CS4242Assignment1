@@ -157,8 +157,15 @@ for org in orgs:
 #test_texts = preprocessFeature(test_name, test_texts)
 
 
+def tokenizer(doc):
+    # print doc
+    token_pattern = re.compile(r"(?u)[&\w]\w+")
+    tokens = token_pattern.findall(doc)
+    # print tokens
+    return tokens
+
 pipeline = Pipeline([
-    ('vect', CountVectorizer(max_df=0.5, stop_words=stopwordlist, lowercase=False)),
+    ('vect', CountVectorizer(max_df=0.5, stop_words=stopwordlist, lowercase=False, tokenizer=tokenizer)),
     ('tfidf', TfidfTransformer()),
     ('clf', LinearSVC()),
 ])
