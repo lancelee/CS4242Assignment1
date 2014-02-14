@@ -78,60 +78,111 @@ feat = []
 testfeat = []
 
 for line in open('TEST/TEST_NEW.txt'):
+    json_dict = json.loads(line)
+    text = json.loads(line)['text']
+    # try:
+    #     location = json_dict["user"]["location"].replace(' ', '')
+    #     if location:
+    #         text += ' &' + location.lower()
+    #         # print text
+    # except:
+    #     pass
+
     try:
-        test_texts.append(json.loads(line)['text'])
+        time_zone = json_dict['user']['time_zone'].replace(' ', '')
+        if time_zone:
+            text += ' &' + time_zone.lower()
     except:
-        test_texts.append(None)
-    try:
-        test_location.append(json.loads(line)["user"]["location"])
-    except:
-        test_location.append(None)
-    try:
-        test_timezone.append(json.loads(line)["user"]["time_zone"])
-    except:
-        test_timezone.append(None)
-    try:
-        test_retweets.append(json.loads(line)["retweeted_status"]["text"])
-    except:
-        test_retweets.append(None)        
-    try:
-        test_geoposition.append(json.loads(line)["geoposition"])
-    except:
-        test_geoposition.append(None)
-    try:
-        test_name.append(json.loads(line)["user"]["name"])
-    except:
-        test_name.append(None)
+        pass
+
+    # try:
+    #     geoposition = json_dict['geoposition'].replace(' ', '')
+    #     if geoposition:
+    #         text += ' &' + geoposition.lower()
+    # except:
+    #     pass
+
+    test_texts.append(text)
+
+    # try:
+    #     test_texts.append(json.loads(line)['text'])
+    # except:
+    #     test_texts.append(None)
+    # try:
+    #     test_location.append(json.loads(line)["user"]["location"])
+    # except:
+    #     test_location.append(None)
+    # try:
+    #     test_timezone.append(json.loads(line)["user"]["time_zone"])
+    # except:
+    #     test_timezone.append(None)
+    # try:
+    #     test_retweets.append(json.loads(line)["retweeted_status"]["text"])
+    # except:
+    #     test_retweets.append(None)
+    # try:
+    #     test_geoposition.append(json.loads(line)["geoposition"])
+    # except:
+    #     test_geoposition.append(None)
+    # try:
+    #     test_name.append(json.loads(line)["user"]["name"])
+    # except:
+    #     test_name.append(None)
 
 
 groundtruths = [None] * len(test_texts)
 for org in orgs:
     with open('TRAIN/%s.txt' % org) as f:
         for line in f:
+            json_dict = json.loads(line)
+            text = json.loads(line)['text']
+            # try:
+            #     location = json_dict["user"]["location"].replace(' ', '')
+            #     if location:
+            #         text += ' &' + location.lower()
+            # except:
+            #     pass
+
             try:
-                train_texts.append(json.loads(line)['text'])                                
-            except: 
-                train_texts.append(None)
-            try:
-                train_location.append(json.loads(line)["user"]["location"])       
+                time_zone = json_dict['user']['time_zone'].replace(' ', '')
+                if time_zone:
+                    text += ' &' + time_zone.lower()
             except:
-                train_location.append(None)
-            try:
-                train_timezone.append(json.loads(line)["user"]["time_zone"])
-            except:
-                train_timezone.append(None)
-            try:
-                train_retweets.append(json.loads(line)["retweeted_status"]["text"])
-            except:
-                train_retweets.append(None)
-            try:
-                train_geoposition.append(json.loads(line)["geoposition"])
-            except:
-                train_geoposition.append(None)
-            try:
-                train_name.append(json.loads(line)["user"]["name"])
-            except:
-                train_name.append(None)
+                pass
+
+            # try:
+            #     geoposition = json_dict['geoposition'].replace(' ', '')
+            #     if geoposition:
+            #         text += ' &' + geoposition.lower()
+            # except:
+            #     pass
+
+            train_texts.append(text)
+
+            # try:
+            #     train_texts.append(json.loads(line)['text'])
+            # except:
+            #     train_texts.append(None)
+            # try:
+            #     train_location.append(json.loads(line)["user"]["location"])
+            # except:
+            #     train_location.append(None)
+            # try:
+            #     train_timezone.append(json.loads(line)["user"]["time_zone"])
+            # except:
+            #     train_timezone.append(None)
+            # try:
+            #     train_retweets.append(json.loads(line)["retweeted_status"]["text"])
+            # except:
+            #     train_retweets.append(None)
+            # try:
+            #     train_geoposition.append(json.loads(line)["geoposition"])
+            # except:
+            #     train_geoposition.append(None)
+            # try:
+            #     train_name.append(json.loads(line)["user"]["name"])
+            # except:
+            #     train_name.append(None)
 
             train_orgs.append(org)
     with open('TEST/Groundtruth_%s.txt' % org) as f:
