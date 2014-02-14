@@ -161,6 +161,7 @@ def tokenizer(doc):
     # print doc
     token_pattern = re.compile(r"(?u)[&\w]\w+")
     tokens = token_pattern.findall(doc)
+    tokens = [token if token.lower() in ['dbs'] else token.lower() for token in tokens]
     # print tokens
     return tokens
 
