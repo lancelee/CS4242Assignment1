@@ -80,13 +80,13 @@ testfeat = []
 for line in open('TEST/TEST_NEW.txt'):
     json_dict = json.loads(line)
     text = json.loads(line)['text']
-    # try:
-    #     location = json_dict["user"]["location"].replace(' ', '')
-    #     if location:
-    #         text += ' &' + location.lower()
-    #         # print text
-    # except:
-    #     pass
+    try:
+        location = json_dict["user"]["location"].replace(' ', '')
+        if location:
+            text += ' &' + location.lower()
+            # print text
+    except:
+        pass
 
     try:
         time_zone = json_dict['user']['time_zone'].replace(' ', '')
@@ -95,12 +95,12 @@ for line in open('TEST/TEST_NEW.txt'):
     except:
         pass
 
-    # try:
-    #     geoposition = json_dict['geoposition'].replace(' ', '')
-    #     if geoposition:
-    #         text += ' &' + geoposition.lower()
-    # except:
-    #     pass
+    try:
+        geoposition = json_dict['geoposition'].replace(' ', '')
+        if geoposition:
+            text += ' &' + geoposition.lower()
+    except:
+        pass
 
     test_texts.append(text)
 
@@ -136,12 +136,12 @@ for org in orgs:
         for line in f:
             json_dict = json.loads(line)
             text = json.loads(line)['text']
-            # try:
-            #     location = json_dict["user"]["location"].replace(' ', '')
-            #     if location:
-            #         text += ' &' + location.lower()
-            # except:
-            #     pass
+            try:
+                location = json_dict["user"]["location"].replace(' ', '')
+                if location:
+                    text += ' &' + location.lower()
+            except:
+                pass
 
             try:
                 time_zone = json_dict['user']['time_zone'].replace(' ', '')
@@ -150,12 +150,12 @@ for org in orgs:
             except:
                 pass
 
-            # try:
-            #     geoposition = json_dict['geoposition'].replace(' ', '')
-            #     if geoposition:
-            #         text += ' &' + geoposition.lower()
-            # except:
-            #     pass
+            try:
+                geoposition = json_dict['geoposition'].replace(' ', '')
+                if geoposition:
+                    text += ' &' + geoposition.lower()
+            except:
+                pass
 
             train_texts.append(text)
 
