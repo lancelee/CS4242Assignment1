@@ -323,22 +323,23 @@ if __name__ == "__main__":
     output.close()
     
 
-    """
+    
     # outputting wrong results
-    output = open("false_prediction.txt", "wb")
+    output = open("new_false_prediction.txt", "wb")
 
     false_counts = 0
-    for x in range(len(groundtruths)):
-        if not predicted[x] == groundtruths[x]:
-            false_counts += 1
-            content = test_texts[x].encode('ascii', 'ignore')
-            output.write(content + "\r\n")
-            output.write("Predicted: " + predicted[x] + " Groundtruth: " + groundtruths[x] + "\r\n\r\n")
-
+    for x in range(len(binary_predicted)):
+        for y in range(len(binary_predicted[0])):
+            if (binary_predicted[x][y] == 0) and (main_groundtruths[x][y] == 1):
+                false_counts += 1
+                content = test_texts[y].encode('ascii', 'ignore')
+                output.write(content + "\r\n")
+                output.write("This tweet should belong to " + orgs[x] + "\r\n\r\n")
     print "false counts = " + str(false_counts)  
 
     output.close()  
-    """ 
+    
+    print "Accuracy of results: " + str((1800 - false_counts) / 1800.0) + "\n"
 
 
 # vectorizer = TfidfVectorizer(stop_words=stopwordlist)
