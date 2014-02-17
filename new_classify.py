@@ -71,36 +71,28 @@ def grab_info (json_dict):
     return text
 
 
-for line in open('TEST/TEST_NEW.txt'):
+def process_line(line):
     json_dict = json.loads(line)
     text = json.loads(line)['text']
 
     bonus = grab_info(json_dict)
-
     if "retweeted_status" in json_dict:
         bonus2 = grab_info(json_dict["retweeted_status"])
         bonus += bonus2
 
     text += bonus
 
-    test_texts.append(text)
+    return text
+
+
+for line in open('TEST/TEST_NEW.txt'):
+    test_texts.append(process_line(line))
 
 main_groundtruths = []
 for org in orgs:
     with open('TRAIN/%s.txt' % org) as f:
         for line in f:
-            json_dict = json.loads(line)
-            text = json.loads(line)['text']
-
-            bonus = grab_info(json_dict)
-            if "retweeted_status" in json_dict:
-                bonus2 = grab_info(json_dict["retweeted_status"])
-                bonus += bonus2
-
-            text += bonus
-
-            train_texts.append(text)
-
+            train_texts.append(process_line(line))
             train_orgs.append(org)
 
     groundtruths = [None] * len(test_texts)
