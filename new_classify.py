@@ -1,14 +1,16 @@
 #!/usr/bin/env python
+# import codecs
 import json
+import re
 from time import time
 
+# import cld
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn import metrics
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
-import re
 
 
 # loading stopwords
@@ -77,12 +79,15 @@ def process_line(line):
     json_dict = json.loads(line)
     text = json.loads(line)['text']
 
+    # language = cld.detect(codecs.getencoder('UTF-8')(text)[0])[0]
+
     bonus = grab_info(json_dict)
     if "retweeted_status" in json_dict:
         bonus2 = grab_info(json_dict["retweeted_status"])
         bonus += bonus2
 
     text += bonus
+    # text += ' &' + language
 
     return text
 
