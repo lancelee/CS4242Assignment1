@@ -1,24 +1,14 @@
 #!/usr/bin/env python
 import json
-from pprint import pprint
 from time import time
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn import metrics
-# from sklearn.naive_bayes import MultinomialNB
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
-# from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 import re
-# from textblob import TextBlob
-# import nltk
-import codecs
-import sys
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 # loading stopwords
@@ -34,24 +24,6 @@ train_orgs = []
 train_texts = []
 test_texts = []
 
-train_location = []
-test_location = []
-
-train_timezone = []
-test_timezone = []
-
-train_retweets = []
-test_retweets = []
-
-train_geoposition = []
-test_geoposition = []
-
-train_name = []
-test_name = []
-
-feat = []
-testfeat = []
-
 def grab_info (json_dict):
     text = u" "
 
@@ -59,16 +31,13 @@ def grab_info (json_dict):
         tags = ' &' + json_dict["entities"]["hashtags"][0]["text"].lower()
         if tags:
             text += tags
-            # print text
     except:
         pass
-
 
     try:
         location = json_dict["user"]["location"].replace(' ', '')
         if location:
             text += ' &' + location.lower()
-            # print text
     except:
         pass
 
@@ -114,8 +83,6 @@ for line in open('TEST/TEST_NEW.txt'):
 
     text += bonus
 
-
-
     test_texts.append(text)
 
 main_groundtruths = []
@@ -131,8 +98,6 @@ for org in orgs:
                 bonus += bonus2
 
             text += bonus
-
-
 
             train_texts.append(text)
 
@@ -193,26 +158,7 @@ binary_train_orgs.append(NUS2_train_orgs)
 binary_train_orgs.append(STARHUB_train_orgs)
 
 
-
-# comment these 2 lines to turn off location feature
-#train_texts = preprocessFeature(train_location, train_texts)
-#test_texts = preprocessFeature(test_location, test_texts)
-
-#train_texts = preprocessFeature(train_timezone, train_texts)
-#test_texts = preprocessFeature(test_timezone, test_texts)
-
-#train_texts = preprocessFeature(train_retweets, train_texts)
-#test_texts = preprocessFeature(test_retweets, test_texts)
-
-#train_texts = preprocessFeature(train_geoposition, train_texts)
-#test_texts = preprocessFeature(test_geoposition, test_texts)
-
-#train_texts = preprocessFeature(train_name, train_texts)
-#test_texts = preprocessFeature(test_name, test_texts)
-
 def tokenizer(doc):
-    # print doc
-
     # condense 3 or more than 3 letters into 1, e.g. hhhheeeello to hello
     # seems to decrease accuracy slightly
     # doc = re.compile(r'(\w)\1{2,}').sub(r'\1', doc)
@@ -220,7 +166,6 @@ def tokenizer(doc):
     token_pattern = re.compile(r"(?u)[&\w]\w+")
     tokens = token_pattern.findall(doc)
     tokens = [token if token.lower() in ['dbs'] else token.lower() for token in tokens]
-    # print tokens
 
     return tokens
 
@@ -311,12 +256,3 @@ if __name__ == "__main__":
     output.close()
 
     print "Accuracy of results: " + str((1800 - false_counts) / 1800.0) + "\n"
-
-
-# vectorizer = TfidfVectorizer(stop_words=stopwordlist)
-# train_counts = vectorizer.fit_transform(train_texts)
-# classifier = LinearSVC()
-# classifier.fit(train_counts, train_orgs)
-#
-# test_counts = vectorizer.transform(test)
-# print classifier.score(test_counts, groundtruths)
