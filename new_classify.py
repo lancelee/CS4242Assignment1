@@ -21,34 +21,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-"""
-def preprocess(text):
-    # do spelling correction
-
-    # remove punctuations and onvert to lowercase
-    # text = re.split(r'\W+', text.lower())
-
-    # remove stopwords
-    # text = [w for w in text if not w in stopwordlist]
-
-    # stemming
-    # stemmer = nltk.stem.porter.PorterStemmer()
-    # text = [stemmer.stem(word) for word in text]
-
-    return ' '.join(text)
-
-def preprocessFeature(feature, train_texts):
-    feat = []
-    # test
-    for x in range(len(train_texts)):
-        if feature[x] == None:
-            line = train_texts[x]
-        else:
-            line = preprocess(feature[x]) + " " + train_texts[x]
-        feat.append(line.encode('ascii', errors='replace'))    
-    return feat
-"""
-
 # loading stopwords
 stopwordlist = []
 with open('stopwordlist.txt') as f:
@@ -80,9 +52,18 @@ test_name = []
 feat = []
 testfeat = []
 
-for line in open('TEST/TEST_NEW.txt'):
-    json_dict = json.loads(line)
-    text = json.loads(line)['text']
+def grab_info (json_dict):
+    text = u" "
+
+    try:
+        tags = ' &' + json_dict["entities"]["hashtags"][0]["text"].lower()
+        if tags:
+            text += tags
+            # print text
+    except:
+        pass
+
+
     try:
         location = json_dict["user"]["location"].replace(' ', '')
         if location:
@@ -118,6 +99,22 @@ for line in open('TEST/TEST_NEW.txt'):
             text += ' ' + retweeted_status
     except:
         pass
+    return text
+
+
+for line in open('TEST/TEST_NEW.txt'):
+    json_dict = json.loads(line)
+    text = json.loads(line)['text']
+
+    bonus = grab_info(json_dict)
+
+    if "retweeted_status" in json_dict:
+        bonus2 = grab_info(json_dict["retweeted_status"])
+        bonus += bonus2
+
+    text += bonus
+
+
 
     test_texts.append(text)
 
@@ -127,46 +124,20 @@ for org in orgs:
         for line in f:
             json_dict = json.loads(line)
             text = json.loads(line)['text']
-            
-            try:
-                location = json_dict["user"]["location"].replace(' ', '')
-                if location:
-                    text += ' &' + location.lower()
-            except:
-                pass
 
-            try:
-                time_zone = json_dict['user']['time_zone'].replace(' ', '')
-                if time_zone:
-                    text += ' &' + time_zone.lower()
-            except:
-                pass
+            bonus = grab_info(json_dict)
+            if "retweeted_status" in json_dict:
+                bonus2 = grab_info(json_dict["retweeted_status"])
+                bonus += bonus2
 
-            try:
-                geoposition = json_dict['geoposition'].replace(' ', '')
-                if geoposition:
-                    text += ' &' + geoposition.lower()
-            except:
-                pass
-            
-            try:
-                user_name = json_dict['user']['name'].replace(' ', '')
-                if user_name:
-                    text += ' ' + user_name
-            except:
-                pass
-            
-            try:
-                retweeted_status = json_dict['retweeted_status']['text']
-                if retweeted_status:
-                    text += ' ' + retweeted_status
-            except:
-                pass
-            
+            text += bonus
+
+
+
             train_texts.append(text)
 
             train_orgs.append(org)
-    
+
     groundtruths = [None] * len(test_texts)
     with open('TEST/Groundtruth_%s.txt' % org) as f:
         for i, line in enumerate(f):
@@ -298,7 +269,7 @@ if __name__ == "__main__":
         # best_parameters = grid_search.best_estimator_.get_params()
         # for param_name in sorted(parameters.keys()):
         #    print("\t%s: %r" % (param_name, best_parameters[param_name]))
-        
+
         # testing classifer with testset and groundtruths
         print("Best score with test set: %0.3f" % grid_search.score(test_texts, main_groundtruths[i]))
         predicted = grid_search.predict(test_texts)
@@ -306,10 +277,10 @@ if __name__ == "__main__":
         conf_matrix = metrics.confusion_matrix(main_groundtruths[i], predicted)
         print(conf_matrix)
         binary_predicted.append(predicted)
-    
 
 
-    
+
+    # output the predicted organizations that each test tweets may belong in
     output = open("binary.txt", "wb")
 
     false_counts = 0
@@ -321,9 +292,9 @@ if __name__ == "__main__":
         output.write(result + "\r\n")
 
     output.close()
-    
 
-    
+
+
     # outputting wrong results
     output = open("new_false_prediction.txt", "wb")
 
@@ -335,10 +306,10 @@ if __name__ == "__main__":
                 content = test_texts[y].encode('ascii', 'ignore')
                 output.write(content + "\r\n")
                 output.write("This tweet should belong to " + orgs[x] + "\r\n\r\n")
-    print "false counts = " + str(false_counts)  
+    print "false counts = " + str(false_counts)
 
-    output.close()  
-    
+    output.close()
+
     print "Accuracy of results: " + str((1800 - false_counts) / 1800.0) + "\n"
 
 
