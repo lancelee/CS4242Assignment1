@@ -181,6 +181,8 @@ parameters = {
     # 'clf__penalty': ('l1', 'l2'),
 }
 
+GRID_SEARCH = False
+
 if __name__ == "__main__":
     # multiprocessing requires the fork to happen in a __main__ protected
     # block
@@ -189,27 +191,33 @@ if __name__ == "__main__":
     # classifier
     binary_predicted = []
     for i in range(len(orgs)):
-        grid_search = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1)
+        classifier = pipeline
 
-        print("Performing grid search for " + orgs[i] + " ...")
-        # print("pipeline:", [name for name, _ in pipeline.steps])
-        # print("parameters:")
-        # pprint(parameters)
-        t0 = time()
-        # training phase
-        grid_search.fit(train_texts, binary_train_orgs[i])
-        print("done in %0.3fs" % (time() - t0))
-        print("\n")
+        if GRID_SEARCH:
+            classifier = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1)
 
-        print("Best score: %0.3f" % grid_search.best_score_)
-        # print("Best parameters set:")
-        # best_parameters = grid_search.best_estimator_.get_params()
-        # for param_name in sorted(parameters.keys()):
-        #    print("\t%s: %r" % (param_name, best_parameters[param_name]))
+            print("Performing grid search for " + orgs[i] + " ...")
+            # print("pipeline:", [name for name, _ in pipeline.steps])
+            # print("parameters:")
+            # pprint(parameters)
+            t0 = time()
+            # training phase
+            classifier.fit(train_texts, binary_train_orgs[i])
+            print("done in %0.3fs" % (time() - t0))
+            print("\n")
+
+            print("Best score: %0.3f" % classifier.best_score_)
+            # print("Best parameters set:")
+            # best_parameters = classifier.best_estimator_.get_params()
+            # for param_name in sorted(parameters.keys()):
+            #    print("\t%s: %r" % (param_name, best_parameters[param_name]))
+        else:
+            print("Training classifier for " + orgs[i] + " ...")
+            classifier.fit(train_texts, binary_train_orgs[i])
 
         # testing classifer with testset and groundtruths
-        print("Best score with test set: %0.3f" % grid_search.score(test_texts, main_groundtruths[i]))
-        predicted = grid_search.predict(test_texts)
+        print("Best score with test set: %0.3f" % classifier.score(test_texts, main_groundtruths[i]))
+        predicted = classifier.predict(test_texts)
         print(metrics.classification_report(main_groundtruths[i], predicted))
         conf_matrix = metrics.confusion_matrix(main_groundtruths[i], predicted)
         print(conf_matrix)
