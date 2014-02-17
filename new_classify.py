@@ -58,6 +58,8 @@ def grab_info (json_dict):
     try:
         user_name = json_dict['user']['name'].replace(' ', '')
         if user_name:
+            if 'nus' in user_name.lower():
+                text += ' &' + 'NUSTwitterAccount'
             text += ' ' + user_name
     except:
         pass
